@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <style>
+        .chatBox{
+     	 position: relative;
+         width: 346px;
+         height: 618px;
+         margin: 50px auto;
+         background: url(img/phoneBg.png) no-repeat;
+     }
+
+     .container{
+     	 position: absolute;
+         width: 316px;
+         height: 430px;
+         padding: 0;
+         top: 55px;
+         left: 15px;
+         list-style: none;
+         overflow: auto;
+         /*display: none;*/
+     }
+     .container::-webkit-scrollbar {
+         display: none;
+     }
+
+     .sendBox{
+     	/*display: none;*/
+         position: absolute;
+         top: 508px;
+         left: 14px;
+         width: 318px;
+         text-align: center;
+         padding: 5px 0;
+         background-color: #eeeeeeb5;
+         border-top: 1px solid #ccc;
+     }
+
+
+     .robot{
+         margin-top: 15px;
+         text-align: left;
+     }
+
+
+     .chat-icon,.user-icon{
+         width: 40px;
+         height: 40px;
+         display:inline-block;
+         border-radius: 20px;
+     }
+
+
+     .robot .text{
+         border-radius: 8px;
+         background-color: #f4f7f9;
+         margin-left: 10px;
+         max-width: 210px;
+         line-height: 20px;
+         word-break: break-all;
+         word-wrap: break-word;
+         display: inline-block;
+         padding: 5px 0px 5px 5px;
+     }
+
+
+     .chat-icon{
+         background: url('./img/logo2.png') 0% 0% / 100% 100% no-repeat;
+     }
+
+     .user-icon{
+         background: url('./img/hehe.jpg') 0% 0%/100% 100% no-repeat;
+     }
+     .user{
+         margin-top: 15px;
+         text-align: right;
+     }
+     .user p{
+         border-radius: 8px;
+         background-color: #f4f7f9;
+         margin-right: 10px;
+         max-width: 210px;
+         line-height: 20px;
+         word-break: break-all;
+         word-wrap: break-word;
+         display: inline-block;
+         padding: 5px;
+         background-color:yellowgreen; 
+     }
+     #msg{
+         width: 220px;
+         height: 25px;
+         border-radius: 5px;
+         outline: none;
+         border: 1px solid #ccc;
+         padding-left: 5px;
+     }
+     #send{
+         display: inline-block;
+         text-decoration: none;
+         width: 60px;
+         height: 28px;
+         line-height: 26px;
+         background-color: yellowgreen;
+         color: #fff;
+         font-size: 14px;
+         border-radius: 5px;
+         outline: none;
+     }
+     [v-cloak] {
+        display: none;
+     }
+ </style>
+</head>
+
+<body>
+    <div class="chatBox" id="app">
+
+        <!-- 聊天记录区域 -->
+        <ul class="container" v-cloak>
+            <li class="robot">
+                <span class="chat-icon"></span>
+                <p class="text">我是您的机器人，快来聊天吧！</p>
+            </li>
+
+            <div v-for="(item, index) in msg">
+                <li class="user" v-if="item.isMe">
+                    <p>{{ item.text }}</p>
+                    <span class="user-icon"></span>
+                </li>
+                <li class="robot" v-else>
+                    <span class="chat-icon"></span>
+                    <p class="text">{{ item.text }}</p>
+                </li>
+            </div>
+
+        </ul>
+        <!-- 输入文字区域 -->
+        <div class="sendBox">
+            <input type="text" id="msg" v-model.trim="inputVlaue" @keyup.enter='sendMsg'>
+            <a href="javascript:;" id="send" @click='sendMsg'>发送</a>
+        </div>
+
+    </div>
+    <script src="./lib/vue.js"></script>
+    <script src="./lib/sx.js"></script>
+    <script src="./lib/xianshi.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        let app = new Vue({
+            el: '#app',
+            data: {
+                scrollTop: 0,
+                inputVlaue: '',
+                msg: []
+            },
+            methods: {
+                sendMsg() {
+                    this.msg.push({
+                        text: this.inputVlaue,
+                        isMe: true
+                    });
+                    console.log(this.msg);
+                    let data = new URLSearchParams();                    
+                    data.append('key','9132464fd36f45c0b6052299d4a44a22');  
+                    data.append('info',this.inputVlaue);                  
+                    axios({
+                        url: 'http://www.tuling123.com/openapi/api',
+                        method: 'post',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        data
+                    }).then(res=>{
+                        // console.log(res);
+                        this.msg.push({
+                            text: res.data.text,
+                            isMe: false
+                        });
+
+                        setTimeout(() => {
+                            document.querySelectorAll('.container li').forEach(ele=>{
+                                this.scrollTop += ele.offsetHeight;
+                            });
+                            document.querySelector('.container').scrollTop = this.scrollTop;
+                        }, 100);
+                    });               
+                    this.inputVlaue = '';
+                },
+            }
+        });
+    </script>
+</body>
+
+</html>
